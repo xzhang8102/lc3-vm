@@ -97,6 +97,10 @@ struct termios original_tio;
 void disable_input_buffering();
 void restore_input_buffering();
 
+uint16_t sign_extend(uint16_t x, int bit_count);
+
+void update_flags(uint16_t r);
+
 int main(int argc, char const *argv[])
 {
   // Load Arguments
@@ -209,4 +213,29 @@ void disable_input_buffering()
 void restore_input_buffering()
 {
   tcsetattr(STDIN_FILENO, TCSANOW, &original_tio);
+}
+
+uint16_t sign_extend(uint16_t x, int bit_count)
+{
+  if ((x >> (bit_count - 1)) & 1 == 1)
+  {
+    x |= (0xFFFF << bit_count);
+  }
+  return x;
+}
+
+void update_flags(uint16_t r)
+{
+  if (r == 0)
+  {
+    reg[R_COND] = FL_ZRO;
+  }
+  else if (r >> 15)
+  {
+    reg[R_COND] = FL_NEG;
+  }
+  else
+  {
+    reg[R_COND] = FL_POS;
+  }
 }
