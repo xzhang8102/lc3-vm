@@ -200,8 +200,12 @@ int main(int argc, char const *argv[])
     }
     break;
     case OP_JMP:
-      // TODO: OP_JMP
-      break;
+    {
+      /* Also handles RET */
+      uint16_t r1 = (instr >> 6) & 0x7;
+      reg[R_PC] = reg[r1];
+    }
+    break;
     case OP_JSR:
       // TODO: OP_JSR
       break;
