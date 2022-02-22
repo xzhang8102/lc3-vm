@@ -224,8 +224,13 @@ int main(int argc, char const *argv[])
     }
     break;
     case OP_LD:
-      // TODO: OP_LD
-      break;
+    {
+      uint16_t r0 = (instr >> 9) & 0x7;
+      uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+      reg[r0] = mem_read(reg[R_PC] + pc_offset);
+      update_flags(r0);
+    }
+    break;
     case OP_LDI: // LDI stands for "load indirect." This instruction is used to load a value from a location in memory into a register.
     {
       uint16_t r0 = (instr >> 9) & 0x7; // get destination register
