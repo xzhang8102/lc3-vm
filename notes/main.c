@@ -80,6 +80,16 @@ enum
 };
 
 /**
+ * memory mapped registers
+ *
+ */
+enum
+{
+  MR_KBSR = 0xFE00, /* keyboard status */
+  MR_KBDR = 0xFE02  /* keyboard data */
+};
+
+/**
  * LC-3 Assembly Examples:
  *
  * Hello World Assembly:
@@ -120,6 +130,9 @@ uint16_t sign_extend(uint16_t x, int bit_count);
 void update_flags(uint16_t r);
 
 int read_image(const char *image_path);
+
+void mem_write(uint16_t address, uint16_t val);
+uint16_t mem_read(uint16_t address);
 
 int main(int argc, char const *argv[])
 {
@@ -450,4 +463,38 @@ int read_image(const char *image_path)
   read_image_file(file);
   fclose(file);
   return 1;
+}
+
+uint16_t check_key()
+{
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(STDIN_FILENO, &readfds);
+
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+    return select(1, &readfds, NULL, NULL, &timeout) != 0;
+}
+
+void mem_write(uint16_t address, uint16_t val)
+{
+  memory[address] = val;
+}
+
+uint16_t mem_read(uint16_t address)
+{
+  if (address == MR_KBSR)
+  {
+    if (check_key())
+    {
+      memory[MR_KBSR] = (1 << 15);
+      memory[MR_KBDR] = getchar();
+    }
+    else
+    {
+      memory[MR_KBSR] = 0;
+    }
+  }
+  return memory[address];
 }
