@@ -60,3 +60,123 @@ enum
   FL_ZRO = 1 << 1, // Z
   FL_NEG = 1 << 2  // N
 };
+
+/**
+ * LC-3 Assembly Examples:
+ *
+ * Hello World Assembly:
+ *
+ * .ORIG x3000                        ; this is the address in memory where the program will be loaded
+ * LEA R0, HELLO_STR                  ; load the address of the HELLO_STR string into R0
+ * PUTs                               ; output the string pointed to by R0 to the console
+ * HALT                               ; halt the program
+ * HELLO_STR .STRINGZ "Hello World!"  ; store this string here in the program
+ * .END                               ; mark the end of the file
+ *
+ * Loop Assembly:
+ *
+ * AND R0, R0, 0                      ; clear R0
+ * LOOP                               ; label at the top of our loop
+ * ADD R0, R0, 1                      ; add 1 to R0 and store back in R0
+ * ADD R1, R0, -10                    ; subtract 10 from R0 and store back in R1
+ * BRn LOOP                           ; go back to LOOP if the result was negative
+ * ...                                ; R0 is now 10!
+ *
+ * Procedures for processing LC-3 Assembly:
+ * 1. Load one instruction from memory at the address of the PC register.
+ * 2. Increment the PC register.
+ * 3. Look at the opcode to determine which type of instruction it should perform.
+ * 4. Perform the instruction using the parameters in the instruction.
+ * 5. Go back to step 1.
+ *
+ */
+
+int main(int argc, char const *argv[])
+{
+  // Load Arguments
+  if (argc < 2)
+  {
+    /* show usage string */
+    printf("lc3 [image-file1] ...\n");
+    exit(2);
+  }
+
+  for (int j = 1; j < argc; ++j)
+  {
+    if (!read_image(argv[j]))
+    {
+      printf("failed to load image: %s\n", argv[j]);
+      exit(1);
+    }
+  }
+
+  reg[R_COND] = FL_ZRO; // since exactly one condition flag should be set at any given time, set the Z flag
+
+  // set the PC to starting position
+  // 0x3000 is the default
+  enum
+  {
+    PC_START = 0x3000
+  };
+  reg[R_PC] = PC_START;
+
+  int running = 1;
+  while (running)
+  {
+    // fetch instrcution from memory
+    uint16_t instr = mem_read(reg[R_PC]); // TODO: mem_read
+    reg[R_PC] += 1;
+    uint16_t opcode = instr >> 12;
+
+    switch (opcode)
+    {
+    case OP_ADD:
+      // TODO: OP_ADD
+      break;
+    case OP_AND:
+      // TODO: OP_AND
+      break;
+    case OP_NOT:
+      // TODO: OP_NOT
+      break;
+    case OP_BR:
+      // TODO: OP_BR
+      break;
+    case OP_JMP:
+      // TODO: OP_JMP
+      break;
+    case OP_JSR:
+      // TODO: OP_JSR
+      break;
+    case OP_LD:
+      // TODO: OP_LD
+      break;
+    case OP_LDI:
+      // TODO: OP_LDI
+      break;
+    case OP_LDR:
+      // TODO: OP_LDR
+      break;
+    case OP_LEA:
+      // TODO: OP_LEA
+      break;
+    case OP_ST:
+      // TODO: OP_ST
+      break;
+    case OP_STI:
+      // TODO: OP_STI
+      break;
+    case OP_STR:
+      // TODO: OP_STR
+      break;
+    case OP_TRAP:
+      // TODO: OP_TRAP
+      break;
+    case OP_RES:
+    case OP_RTI:
+    default:
+      // TODO: BAD OPCODE
+      break;
+    }
+  }
+}
