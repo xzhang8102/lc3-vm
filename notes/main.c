@@ -91,6 +91,12 @@ enum
  *
  */
 
+void handle_interrupt(int signal);
+// setting up UNIX terminal input
+struct termios original_tio;
+void disable_input_buffering();
+void restore_input_buffering();
+
 int main(int argc, char const *argv[])
 {
   // Load Arguments
@@ -109,6 +115,9 @@ int main(int argc, char const *argv[])
       exit(1);
     }
   }
+
+  signal(SIGINT, handle_interrupt);
+  disable_input_buffering();
 
   reg[R_COND] = FL_ZRO; // since exactly one condition flag should be set at any given time, set the Z flag
 
@@ -179,4 +188,25 @@ int main(int argc, char const *argv[])
       break;
     }
   }
+  restore_input_buffering();
+}
+
+void handle_interrupt(int signal)
+{
+  restore_input_buffering();
+  printf("\n");
+  exit(-2);
+}
+
+void disable_input_buffering()
+{
+  tcgetattr(STDIN_FILENO, &original_tio);
+  struct termios new_tio = original_tio;
+  new_tio.c_lflag &= ~ICANON & ~ECHO;
+  tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
+}
+
+void restore_input_buffering()
+{
+  tcsetattr(STDIN_FILENO, TCSANOW, &original_tio);
 }
