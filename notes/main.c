@@ -144,23 +144,42 @@ int main(int argc, char const *argv[])
     switch (opcode)
     {
     case OP_ADD:
+    {
+      uint16_t r0 = (instr >> 9) & 0x7;       // get bits[9:11]
+      uint16_t r1 = (instr >> 6) & 0x7;       // get bits[6:8]
+      uint16_t imm_flag = (instr >> 5) & 0x1; // get bit[5]
+      if (imm_flag)
       {
-        uint16_t r0 = (instr >> 9) & 0x7; // get bits[9:11]
-        uint16_t r1 = (instr >> 6) & 0x7; // get bits[6:8]
-        uint16_t imm_flag = (instr >> 5) & 0x1; // get bit[5]
-        if (imm_flag) {
-          uint16_t imm5 = sign_extend(instr & 0x1F, 5);
-          reg[r0] = reg[r1] + imm5;
-        } else {
-          uint16_t r2 = instr & 0x7;
-          reg[r0] = reg[r1] + reg[r2];
-        }
-        update_flags(r0);
+        uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+        reg[r0] = reg[r1] + imm5;
       }
-      break;
+      else
+      {
+        uint16_t r2 = instr & 0x7;
+        reg[r0] = reg[r1] + reg[r2];
+      }
+      update_flags(r0);
+    }
+    break;
     case OP_AND:
-      // TODO: OP_AND
-      break;
+    {
+      uint16_t r0 = (instr >> 9) & 0x7;
+      uint16_t r1 = (instr >> 6) & 0x7;
+      uint16_t imm_flag = (instr >> 5) & 0x1;
+
+      if (imm_flag)
+      {
+        uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+        reg[r0] = reg[r1] & imm5;
+      }
+      else
+      {
+        uint16_t r2 = instr & 0x7;
+        reg[r0] = reg[r1] & reg[r2];
+      }
+      update_flags(r0);
+    }
+    break;
     case OP_NOT:
       // TODO: OP_NOT
       break;
@@ -177,13 +196,13 @@ int main(int argc, char const *argv[])
       // TODO: OP_LD
       break;
     case OP_LDI: // LDI stands for "load indirect." This instruction is used to load a value from a location in memory into a register.
-      {
-        uint16_t r0 = (instr >> 9) & 0x7; // get destination register
-        uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
-        reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
-        update_flags(r0);
-      }
-      break;
+    {
+      uint16_t r0 = (instr >> 9) & 0x7; // get destination register
+      uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+      reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
+      update_flags(r0);
+    }
+    break;
     case OP_LDR:
       // TODO: OP_LDR
       break;
@@ -205,7 +224,7 @@ int main(int argc, char const *argv[])
     case OP_RES:
     case OP_RTI:
     default:
-      // TODO: BAD OPCODE
+      abort();
       break;
     }
   }
