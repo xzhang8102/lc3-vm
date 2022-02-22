@@ -407,7 +407,7 @@ void restore_input_buffering()
 
 uint16_t sign_extend(uint16_t x, int bit_count)
 {
-  if ((x >> (bit_count - 1)) & 1 == 1)
+  if (((x >> (bit_count - 1)) & 1) == 1)
   {
     x |= (0xFFFF << bit_count);
   }
@@ -467,14 +467,14 @@ int read_image(const char *image_path)
 
 uint16_t check_key()
 {
-    fd_set readfds;
-    FD_ZERO(&readfds);
-    FD_SET(STDIN_FILENO, &readfds);
+  fd_set readfds;
+  FD_ZERO(&readfds);
+  FD_SET(STDIN_FILENO, &readfds);
 
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-    return select(1, &readfds, NULL, NULL, &timeout) != 0;
+  struct timeval timeout;
+  timeout.tv_sec = 0;
+  timeout.tv_usec = 0;
+  return select(1, &readfds, NULL, NULL, &timeout) != 0;
 }
 
 void mem_write(uint16_t address, uint16_t val)
