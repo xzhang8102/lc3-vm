@@ -144,7 +144,19 @@ int main(int argc, char const *argv[])
     switch (opcode)
     {
     case OP_ADD:
-      // TODO: OP_ADD
+      {
+        uint16_t r0 = (instr >> 9) & 0x7; // get bits[9:11]
+        uint16_t r1 = (instr >> 6) & 0x7; // get bits[6:8]
+        uint16_t imm_flag = (instr >> 5) & 0x1; // get bit[5]
+        if (imm_flag) {
+          uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+          reg[r0] = reg[r1] + imm5;
+        } else {
+          uint16_t r2 = instr & 0x7;
+          reg[r0] = reg[r1] + reg[r2];
+        }
+        update_flags(r0);
+      }
       break;
     case OP_AND:
       // TODO: OP_AND
@@ -226,11 +238,11 @@ uint16_t sign_extend(uint16_t x, int bit_count)
 
 void update_flags(uint16_t r)
 {
-  if (r == 0)
+  if (reg[r] == 0)
   {
     reg[R_COND] = FL_ZRO;
   }
-  else if (r >> 15)
+  else if (reg[r] >> 15)
   {
     reg[R_COND] = FL_NEG;
   }
